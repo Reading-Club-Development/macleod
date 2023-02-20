@@ -2,7 +2,7 @@
 name = "macleod"
 version = "0.1.0"
 description = "Macleod: A Common Logic Environmnet for Ontology Development"
-authors = []
+authors = ["RCD"]
 license = "CC BY"
 readme = "README.md"
 
