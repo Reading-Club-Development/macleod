@@ -1,4 +1,4 @@
-name: Sort Lib
+name: Linter and Testing
 
 on:
   push:
