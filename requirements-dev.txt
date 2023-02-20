@@ -1,0 +1,9 @@
+pre-commit
+pytest
+setuptools
+build
+# flake8
+black
+wheel
+packaging
+-rrequirements.txt
