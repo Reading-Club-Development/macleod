@@ -3,7 +3,7 @@
 @version 0.0.2
 """
 
-from Macleod.logical.logical import Logical
+from macleod_eureka.logical.logical import Logical
 
 from enum import Enum
 import copy
@@ -139,9 +139,9 @@ class Predicate(Logical):
         '''
 
         # TODO Dirty hack because cyclic imports are painful
-        from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
-        from Macleod.logical.negation import Negation
-        from Macleod.logical.connective import (Conjunction, Disjunction, Connective)
+        from macleod_eureka.logical.quantifier import (Universal, Existential, Quantifier)
+        from macleod_eureka.logical.negation import Negation
+        from macleod_eureka.logical.connective import (Conjunction, Disjunction, Connective)
 
         global gen
 

@@ -6,9 +6,9 @@ Insert boss header here
 import copy
 import logging
 
-from Macleod.logical.negation import Negation
-from Macleod.logical.symbol import (Function, Predicate)
-from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
+from macleod_eureka.logical.negation import Negation
+from macleod_eureka.logical.symbol import (Function, Predicate)
+from macleod_eureka.logical.quantifier import (Universal, Existential, Quantifier)
 
 LOGGER = logging.getLogger(__name__)
 

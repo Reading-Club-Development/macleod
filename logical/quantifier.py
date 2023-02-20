@@ -6,8 +6,8 @@
 import copy
 import logging
 
-from Macleod.logical.logical import Logical
-from Macleod.logical.symbol import Predicate
+from macleod_eureka.logical.logical import Logical
+from macleod_eureka.logical.symbol import Predicate
 
 LOGGER = logging.getLogger(__name__)
 
@@ -79,8 +79,8 @@ class Quantifier(Logical):
             3. Calls a coalesce + rescope operation if its child is a Connective
         '''
 
-        from Macleod.logical.negation import Negation
-        from Macleod.logical.connective import Connective
+        from macleod_eureka.logical.negation import Negation
+        from macleod_eureka.logical.connective import Connective
 
         term = self.terms[0]
 
@@ -116,7 +116,7 @@ class Quantifier(Logical):
         def dfs_simplify(current, parent, root):
 
             # TODO: Really gotta fix this import nonsense
-            from Macleod.logical.connective import (Conjunction, Disjunction, Connective)
+            from macleod_eureka.logical.connective import (Conjunction, Disjunction, Connective)
 
             if parent != current:
                 # Quantifier: either Absorb or Reset
@@ -256,7 +256,7 @@ class Quantifier(Logical):
 
     def coalesce(self, other):
 
-        from Macleod.logical.connective import (Conjunction, Disjunction, Connective)
+        from macleod_eureka.logical.connective import (Conjunction, Disjunction, Connective)
 
         if not isinstance(other, type(self)):
             raise ValueError("Can't coalesce quantifiers of different types {} {}".format(repr(self), repr(other)))

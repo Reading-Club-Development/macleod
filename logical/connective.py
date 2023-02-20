@@ -8,9 +8,9 @@ import copy
 import functools
 import logging
 
-from Macleod.logical.logical import Logical
-from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
-from Macleod.logical.symbol import (Predicate, Function)
+from macleod_eureka.logical.logical import Logical
+from macleod_eureka.logical.quantifier import (Universal, Existential, Quantifier)
+from macleod_eureka.logical.symbol import (Predicate, Function)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -356,7 +356,7 @@ class Conjunction(Connective):
 
     def remove_redundant_terms(self):
 
-        from Macleod.logical.negation import Negation
+        from macleod_eureka.logical.negation import Negation
         #LOGGER.debug("Term to remove duplicate terms from: " + repr(self))
         new_terms = []
         negated_terms = []
@@ -557,7 +557,7 @@ class Disjunction(Connective):
 
     def remove_redundant_terms(self):
 
-        from Macleod.logical.negation import Negation
+        from macleod_eureka.logical.negation import Negation
         #LOGGER.debug("Term to remove duplicate terms from: " + repr(self))
         new_terms = []
         negated_terms = []

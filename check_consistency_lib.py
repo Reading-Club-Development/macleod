@@ -4,16 +4,18 @@ import sys, os
 
 LOGGER = logging.getLogger(__name__)
 
-import Macleod.Filemgt
+import macleod_eureka.Filemgt as Filemgt
 
-import Macleod.src.macleod.scripts.parserlib as parser
+import macleod_eureka.parserlib as parser
+
+import macleod_eureka.Ontology as Ontology
 
 #print(os.path.dirname(os.path.abspath(__file__)))
 #sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/../")
 
 
-default_dir = Macleod.Filemgt.read_config('system', 'path')
-default_prefix = Macleod.Filemgt.read_config('cl', 'prefix')
+default_dir = Filemgt.read_config('system', 'path')
+default_prefix = Filemgt.read_config('cl', 'prefix')
 
 
 #Function to check the consistency of ontologies in the Common Logic Interchange Format (.clif).'
@@ -36,7 +38,7 @@ def main(filepath, method="simple", output=True, resolve=False, stats=True, nont
 
 
     # Parse out the ontology object then print it nicely
-    default_basepath = Macleod.Filemgt.get_ontology_basepath()
+    default_basepath = Filemgt.get_ontology_basepath()
     if sub is None:
         sub = default_basepath[0]
     if base is None:
@@ -82,7 +84,7 @@ def consistent(filename, method, sub, base, resolve, conds, output, stats, nontr
 
         (return_value, fastest_reasoner) = ontology.check_consistency()
 
-        if return_value == Macleod.Ontology.CONSISTENT:
+        if return_value == Ontology.CONSISTENT:
             if nontrivial:
                 print(fastest_reasoner.name + " proved nontrivial consistency of " + ontology.name)
             else:

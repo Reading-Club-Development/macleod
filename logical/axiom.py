@@ -6,12 +6,12 @@ import copy
 import logging
 import functools
 
-from Macleod.logical.logical import Logical
-from Macleod.logical.connective import (Conjunction, Disjunction, Connective, Implication, Biconditional)
-from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
-from Macleod.logical.negation import Negation
-from Macleod.logical.symbol import (Function, Predicate)
-import Macleod.logical.utils as Util
+from macleod_eureka.logical.logical import Logical
+from macleod_eureka.logical.connective import (Conjunction, Disjunction, Connective, Implication, Biconditional)
+from macleod_eureka.logical.quantifier import (Universal, Existential, Quantifier)
+from macleod_eureka.logical.negation import Negation
+from macleod_eureka.logical.symbol import (Function, Predicate)
+import macleod_eureka.logical.utils as Util
 
 LOGGER = logging.getLogger(__name__)
 

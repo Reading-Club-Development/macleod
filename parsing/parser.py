@@ -6,12 +6,12 @@ import re
 
 from pathlib import Path
 
-import Macleod.Ontology
-from Macleod.logical.connective import (Conjunction, Disjunction, Connective, Implication, Biconditional)
-from Macleod.logical.logical import Logical
-from Macleod.logical.negation import Negation
-from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
-from Macleod.logical.symbol import (Function, Predicate)
+import macleod_eureka.Ontology
+from macleod_eureka.logical.connective import (Conjunction, Disjunction, Connective, Implication, Biconditional)
+from macleod_eureka.logical.logical import Logical
+from macleod_eureka.logical.negation import Negation
+from macleod_eureka.logical.quantifier import (Universal, Existential, Quantifier)
+from macleod_eureka.logical.symbol import (Function, Predicate)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -553,7 +553,7 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
     #else:
     #    LOGGER.info("Eliminating all conditionals")
 
-    ontology = Macleod.Ontology(path, preserve_conditionals = conditionals)
+    ontology = macleod_eureka.Ontology(path, preserve_conditionals = conditionals)
 
     if name is not None:
         ontology.name = name

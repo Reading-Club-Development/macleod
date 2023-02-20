@@ -3,10 +3,10 @@
 @version 0.0.2
 """
 
-from Macleod.logical.logical import Logical
-from Macleod.logical.connective import (Conjunction, Disjunction, Connective)
-from Macleod.logical.symbol import (Function, Predicate)
-from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
+from macleod_eureka.logical.logical import Logical
+from macleod_eureka.logical.connective import (Conjunction, Disjunction, Connective)
+from macleod_eureka.logical.symbol import (Function, Predicate)
+from macleod_eureka.logical.quantifier import (Universal, Existential, Quantifier)
 
 import copy
 
