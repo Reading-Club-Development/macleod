@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "macleod_eureka"
+version = "0.2.3"
+authors = [
+  { name="Gunnar Eastman", email="gunnar.eastman@gmail.com" },
+]
+description = "A simple way to parse clif files and convert them into different ontology file formats"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
