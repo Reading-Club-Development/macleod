@@ -5,12 +5,14 @@ from Macleod.logical.axiom import Axiom
 from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
 import Macleod.Ontology as Ontology
 
+import Macleod.scripts.parser as Parser
+
 class OnologyTest(unittest.TestCase):
     """
     Test functionality of Ontology class
     """
 
-    def test_owl_subclass(self):
+    def test_parse(self):
         a = Predicate('A', ['x'])
         b = Predicate('B', ['x'])
         c = Predicate('C', ['x'])
@@ -19,7 +21,8 @@ class OnologyTest(unittest.TestCase):
 
         onto = Ontology("Derp")
         onto.axioms.append(subclass_relation)
-        print(onto.to_owl(0))
+
+        Parser.parse_clif("rcc_basic.clif")
 
 if __name__ == '__main__':
     unittest.main()
