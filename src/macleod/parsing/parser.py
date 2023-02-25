@@ -6,12 +6,12 @@ import re
 
 from pathlib import Path
 
-import macleod.Ontology
-from macleod.logical.connective import (Conjunction, Disjunction, Connective, Implication, Biconditional)
-from macleod.logical.logical import Logical
-from macleod.logical.negation import Negation
-from macleod.logical.quantifier import (Universal, Existential, Quantifier)
-from macleod.logical.symbol import (Function, Predicate)
+import Macleod.Ontology
+from Macleod.logical.connective import (Conjunction, Disjunction, Connective, Implication, Biconditional)
+from Macleod.logical.logical import Logical
+from Macleod.logical.negation import Negation
+from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
+from Macleod.logical.symbol import (Function, Predicate)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -169,7 +169,7 @@ def p_comment(p):
     """
 
     # p[0] = p[3]
-    p[0] = None
+    p[0] = [p[2], p[3]]
 
 def p_comment_error(p):
     """
@@ -203,7 +203,7 @@ def p_import(p):
     import : LPAREN IMPORT URI RPAREN
     """
 
-    p[0] = p[3]
+    p[0] = [p[2], p[3]]
 
 def p_import_error(p):
     """
@@ -539,8 +539,6 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
     :return Ontology onto, newly constructed ontology object
     """
 
-    path = os.path.normpath(os.path.join(base, path))
-
     if not os.path.isfile(path):
         LOGGER.warning("Attempted to parse non-existent file: " + path)
         return None
@@ -553,7 +551,7 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
     #else:
     #    LOGGER.info("Eliminating all conditionals")
 
-    ontology = macleod.Ontology(path, preserve_conditionals = conditionals)
+    ontology = Macleod.Ontology(path, preserve_conditionals = conditionals)
 
     if name is not None:
         ontology.name = name
@@ -578,8 +576,13 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
 
             ontology.add_axiom(logical_thing)
 
-        elif isinstance(logical_thing, str):
+        elif isinstance(logical_thing, list):
+            if(logical_thing[0] == 'cl-comment'):
+                ontology.add_import(logical_thing[1])
+            else:
+                ontology.add_import(logical_thing[1])
 
+        elif isinstance(logical_thing, str):
             ontology.add_import(logical_thing)
 
     if resolve:
@@ -602,4 +605,4 @@ def reset_parser():
 
 if __name__ == '__main__':
 
-    LOGGER.error('This is not the module to be used directly for parsing a file. Instead, use scripts/parser.py to call the parser.')
+    LOGGER.error('This is not the droid you are looking for. Use bin/parser.py instead')
