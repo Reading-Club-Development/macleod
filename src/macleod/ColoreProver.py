@@ -4,9 +4,9 @@ Created on 2010-11-05
 @author: torsten
 '''
 
-from .VAMPIRE import VAMPIRE
+from .Vampire import VAMPIRE
 from .ClifModule import ClifModule
-import atexit, os, datetime, filemgt, process, ladr
+import atexit, os, datetime, Filemgt, Process, Ladr
 import sys
 
 #from PredicateOrderHeuristic import *

@@ -1,9 +1,9 @@
 import unittest
 
-from Macleod.logical.symbol import (Function, Predicate)
-from Macleod.logical.axiom import Axiom
-from Macleod.logical.quantifier import (Universal, Existential, Quantifier)
-import Macleod.Ontology as Ontology
+from macleod.logical.symbol import (Function, Predicate)
+from macleod.logical.axiom import Axiom
+from macleod.logical.quantifier import (Universal, Existential, Quantifier)
+import macleod.Ontology as Ontology
 
 class OnologyTest(unittest.TestCase):
     """
