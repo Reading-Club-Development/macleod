@@ -1,7 +1,7 @@
 name: Linter and Testing
 
 on:
-  push:
+#   push:
 #     branches:
 #       - Linting/Testing
   pull_request:
