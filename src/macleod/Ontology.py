@@ -42,6 +42,9 @@ class Ontology(object):
         # For the time being, just maintain a list of axioms
         self.axioms = []
 
+        # List of statements as a placeholder until we combine it with the list of axioms.
+        self.statements = []
+
         # for flexibility, maintain a separate list of conjectures
         self.conjectures = []
 
@@ -191,8 +194,19 @@ class Ontology(object):
         :param Logical logical, a parsed logical object
         :return None
         """
-
+        self.statements.append(macleod.logical.axiom.Axiom(logical))
         self.axioms.append(macleod.logical.axiom.Axiom(logical))
+
+    
+    def add_comment(self, comment):
+        """
+        Accepts a string comment and uh... idk adds it to the list of stuffs.
+        
+        :param String comment, a comment present in the CLIF file.
+        :return None
+        """
+
+        self.statements.append(comment)
 
     def add_conjecture(self, logical):
         """
@@ -215,6 +229,18 @@ class Ontology(object):
         """
 
         self.imports[path] = None
+        self.statements.append(path)
+
+    def add_module(self, uri):
+        """
+        Accepts a uri (whatever that is) and adds the module declaration to 
+        the list of statements.
+        
+        :param String uri, I think this is meant to be URL and is a typo...
+        :return None
+        """
+
+        self.statements.append(uri)
 
     def analyze_ontology(self):
         """
@@ -672,15 +698,24 @@ class Ontology(object):
 
         return imported_axioms
 
-    def get_all_axioms(self):
+    def get_all_axioms(self, mode="full"):
         """
         Gets a list of all axioms found in the ontology itself and,
         if resolve is set (i.e. by calling resolve_imports()),
         also in its import closure
 
-        :param resolve: Boolean that indicates whether to include all axioms from the import closure as well
+        :param self.resolve: Boolean that indicates whether to include all axioms from the import closure as well
+        :param mode: "axioms" to get only the axioms
         :return: axioms: list of all axioms (concatenation of axioms from the ontology and the imported axioms)
         """
+
+        if(mode.lower() != "axioms"):
+            statements = [(x, self.name) for x in self.statements]
+            logging.getLogger(__name__).info("Found " + str(len(statements)) + " total statements in " + self.name)
+
+            return statements
+            
+                
 
         axioms = [(x, self.name) for x in self.axioms[:]]
         logging.getLogger(__name__).info("Found " + str(len(axioms)) + " axioms in " + self.name)
@@ -710,14 +745,14 @@ class Ontology(object):
                        self.name.replace(os.path.normpath(self.basepath[1]), self.basepath[0]).replace('.clif', '.owl').replace(os.sep, '/'),
                                       profile)
 
-            axioms = self.get_all_axioms()
+            statements = self.get_all_axioms()
 
             # keeping track of classes (unary predicates) and properties (binary predicates) encountered
             # to avoid redundant declarations
             # predicates with the same arity and name are assumed to be identical
 
             # Loop over each Axiom and filter applicable patterns
-            for axiom, path in axioms:
+            for statement, path in statements:
 
                 print('Axiom: {} from {}'.format(axiom, path))
                 pcnf = axiom.ff_pcnf()

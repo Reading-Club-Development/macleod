@@ -188,7 +188,7 @@ def p_module(p):
 
     # TODO: doing nothing with cl-module right now ...
     # p[0] = p[3]
-    p[0] = None
+    p[0] = [p[2], p[5]]
 
 def p_module_error(p):
     """
@@ -578,9 +578,11 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
 
         elif isinstance(logical_thing, list):
             if(logical_thing[0] == 'cl-comment'):
+                ontology.add_comment(logical_thing[1])
+            elif(logical_thing[0] == 'cl-import'):
                 ontology.add_import(logical_thing[1])
-            else:
-                ontology.add_import(logical_thing[1])
+            elif(logical_thing[0] == 'cl-module'):
+                ontology.add_module(logical_thing[1])
 
         elif isinstance(logical_thing, str):
             ontology.add_import(logical_thing)

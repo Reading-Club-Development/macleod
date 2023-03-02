@@ -15,6 +15,7 @@ default_prefix = macleod.Filemgt.read_config('cl', 'prefix')
 #Returns nothing
 #Filepath: A string to the filepath of the file or folder to be converted
 #format: The format to be converted into. If set to "None" it'll just print the clif file.
+#mode: string. "full" for 
 #enum: Do you want it to enumerate axioms? Only relevant for LaTeX output.
 #output: Boolean. Do you want it to write an output file (True) or just print (False)
 #resolve: do you want it to resolve imports
@@ -22,7 +23,7 @@ default_prefix = macleod.Filemgt.read_config('cl', 'prefix')
 #base: path to directory with ontology files. Only relevant if resolve is on
 #sub: path to directory with import files. Only relevant if resolve is on
 
-def parse_clif(filepath, format="None", OWL_version="Full", enum=False, output=False, resolve=False, nocond=False, base=None, sub=None, ffpcnf=False, clip=False):
+def parse_clif(filepath, format="None", mode="full", OWL_version="Full", enum=False, output=False, resolve=False, nocond=False, base=None, sub=None, ffpcnf=False, clip=False):
  # Parse out the ontology object then print it nicely
     default_basepath = macleod.Filemgt.get_ontology_basepath()
     if sub is None:
@@ -80,16 +81,16 @@ def convert_file(file, format, sub, base, resolve, preserve_conditionals = None,
         print(ontology.to_ffpcnf())
         return ontology
     
-    if format is "tptp":
+    elif format.lower() == "tptp":
         print(ontology.to_tptp())
         if output:
             filename = ontology.write_tptp_file()
             logging.getLogger(__name__).info("Produced TPTP file " + filename)
             return filename
 
-    if format is "owl":
+    elif format.lower() == "owl":
         # argument full has been used to store the OWL Profile
-        onto = ontology.to_owl(owlType(type))
+        onto = ontology.to_owl(owl_type(type))
 
         print("\n-- Translation --\n")
         print(onto.tostring())
@@ -99,7 +100,7 @@ def convert_file(file, format, sub, base, resolve, preserve_conditionals = None,
             filename = ontology.write_owl_file()
             logging.getLogger(__name__).info("Produced OWL file " + filename)
 
-    if format is "ladr":
+    elif format.lower() == "ladr":
         print(ontology.to_ladr())
 
         if output:
@@ -107,21 +108,23 @@ def convert_file(file, format, sub, base, resolve, preserve_conditionals = None,
             logging.getLogger(__name__).info("Produced LADR file " + filename)
             return filename
 
-    if format is "latex":
+    elif format.lower() == "latex":
         if output:
             filename = ontology.write_latex_file(enum)
             logging.getLogger(__name__).info("Produced LaTeX file " + filename)
             return filename
         else:
             print(ontology.to_latex())
+
+    else:
+        print("ERROR: Can't convert to that format")
     
 
-    print("ERROR: IMPROPER FORMAT FIELD")
 
 
 #takes a string describing the OWL version and returns the proper Owl.Profile object
 #if type is None, will return OWL2_FULL
-def owlType(type):
+def owl_type(type):
     from macleod.dl.owl import Owl
     # argument full is used to store the OWL Profile
     if type == "dl":
