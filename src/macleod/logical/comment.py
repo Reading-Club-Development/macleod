@@ -41,7 +41,7 @@ class Comment(object):
         :return str tptp, TPTP formatted version of this axiom
         """
 
-        self.text = "%----" + self.text
+        self.text = "% " + self.text
         # via http://tptp.cs.miami.edu/TPTP/QuickGuide/Problems.html
         # and https://tptp.org/NonClassicalLogic/SyntaxBNF.html
 

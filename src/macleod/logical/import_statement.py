@@ -40,6 +40,9 @@ class Comment(object):
 
         :return str tptp, TPTP formatted version of this axiom
         """
+        
+        self.text = "include(" + self.text + ")."
+        # as per https://www.tptp.org/cgi-bin/SeeTPTP?Category=Problems&Domain=LCL&File=LCL582^1.p 
 
         return self.text
 
