@@ -5,6 +5,8 @@ on:
     branches:
       - Linting/Testing
   pull_request:
+    branches:
+      - Linting/Testing
       
 jobs:
   linting:
