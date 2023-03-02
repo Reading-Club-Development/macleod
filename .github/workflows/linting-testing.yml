@@ -2,8 +2,8 @@ name: Linter and Testing
 
 on:
   push:
-    branches:
-      - Linting/Testing
+#     branches:
+#       - Linting/Testing
   pull_request:
     branches:
       - Linting/Testing
