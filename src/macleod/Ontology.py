@@ -713,6 +713,10 @@ class Ontology(object):
             statements = [(x, self.name) for x in self.statements]
             logging.getLogger(__name__).info("Found " + str(len(statements)) + " total statements in " + self.name)
 
+            if self.resolve:
+                axioms +=self.get_imported_axioms()
+                logging.getLogger(__name__).info("Working from a total of " + str(len(axioms)) + " axioms (including imported ones)")
+
             return statements
             
                 
@@ -754,21 +758,23 @@ class Ontology(object):
             # Loop over each Axiom and filter applicable patterns
             for statement, path in statements:
 
-                print('Axiom: {} from {}'.format(axiom, path))
-                pcnf = axiom.ff_pcnf()
+                print('Axiom: {} from {}'.format(statement, path))
+                pcnf = statement.ff_pcnf()
                 print('FF-PCNF: {}'.format(pcnf))
 
-                # for completeness: declare all unary predicates as classes
-                for unary in axiom.unary():
-                    if unary.name not in self.classes:
-                        self.classes.add(unary.name)
-                        onto.declare_class(unary.name)
+                import macleod.logical.axiom as ax
+                if(isinstance(statement, ax.Axiom)):
+                    # for completeness: declare all unary predicates as classes
+                    for unary in statement.unary():
+                        if unary.name not in self.classes:
+                            self.classes.add(unary.name)
+                            onto.declare_class(unary.name)
 
-                # for completeness: declare all binary predicates as object properties
-                for binary in axiom.binary():
-                    if binary.name not in self.properties:
-                        self.properties.add(binary.name)
-                        onto.declare_property(binary.name)
+                    # for completeness: declare all binary predicates as object properties
+                    for binary in statement.binary():
+                        if binary.name not in self.properties:
+                            self.properties.add(binary.name)
+                            onto.declare_property(binary.name)
 
                 pcnf_sentences = macleod.dl.translation.translate_owl(pcnf)
 
@@ -777,23 +783,24 @@ class Ontology(object):
 
                 for pruned in pcnf_sentences:
 
-                    self.pcnf_sentences += 1
+                    if isinstance(pruned, ax.Axiom):
+                        self.pcnf_sentences += 1
 
-                    tmp_axiom = macleod.logical.axiom.Axiom(pruned)
-                    pattern_set = macleod.dl.filters.filter_axiom(tmp_axiom)
+                        tmp_axiom = macleod.logical.axiom.Axiom(pruned)
+                        pattern_set = macleod.dl.filters.filter_axiom(tmp_axiom)
 
-                    self.filtered_patterns += len(pattern_set)
+                        self.filtered_patterns += len(pattern_set)
 
-                    #Collector for extracted patterns
-                    for pattern in pattern_set:
+                        #Collector for extracted patterns
+                        for pattern in pattern_set:
 
-                        extraction = pattern(tmp_axiom)
-                        if extraction is not None:
-                            print('     - pattern', extraction[0])
-                            if pattern==Pattern.transitive_relation:
-                                self.transitive_extractions.append(extraction)
-                            else:
-                                extractions.append(extraction)
+                            extraction = pattern(tmp_axiom)
+                            if extraction is not None:
+                                print('     - pattern', extraction[0])
+                                if pattern==Pattern.transitive_relation:
+                                    self.transitive_extractions.append(extraction)
+                                else:
+                                    extractions.append(extraction)
 
                 # TODO: now produce all the extracted axioms
                 for extraction in extractions:
