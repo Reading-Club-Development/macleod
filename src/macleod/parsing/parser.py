@@ -616,7 +616,10 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
         elif isinstance(logical_thing, list):
             if(logical_thing[0] == "="):
                 ontology.consts.update([logical_thing[1]])
-            ontology.add_comment(logical_thing[1])
+            elif(logical_thing[0] == "cl-imports"):
+                ontology.add_comment("import "+ logical_thing[1])
+            elif(logical_thing[0] == "cl-comment"):
+                ontology.add_comment(logical_thing[1])
 
         elif isinstance(logical_thing, str):
             ontology.add_comment(logical_thing)
