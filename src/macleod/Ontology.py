@@ -109,9 +109,10 @@ class Ontology(object):
 
         temp_axioms = []
 
-        for axiom in self.axioms:
+        for axiom in self.statements:
             print(axiom)
-            temp_axioms.append(axiom.ff_pcnf())
+            if(isinstance(axiom, macleod.logical.axiom.Axiom)):
+                temp_axioms.append(axiom.ff_pcnf())
 
         self.axioms = temp_axioms
         return self.axioms

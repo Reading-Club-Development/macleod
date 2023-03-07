@@ -41,13 +41,15 @@ reserved = {
         'forall': 'FORALL',
         'iff': 'IFF',
         'if': 'IF',
-        'cl:comment': 'CLCOMMENT',
+        "=":'SET',
+        'cl-ttl': 'TITLE',
+        'cl-comment': 'CLCOMMENT',
 #        'cl:comment': 'CLCOMMENT',
-        'cl:text': 'START',
-#        'cl:text': 'START',
-        'cl:imports': 'IMPORT',
+        'cl-text': 'START',
+#        'cl-text': 'START',
+        'cl-imports': 'IMPORT',
 #        'cl:imports': 'IMPORT',
-        'cl:module': 'CLMODULE',
+        'cl-module': 'CLMODULE',
 #        'cl:module': 'CLMODULE',
 #        'cl:indiscourse': 'CLCOMMENT',
 #        'cl:outdiscourse': 'CLCOMMENT',
@@ -112,16 +114,24 @@ def p_starter(p):
 def p_ontology(p):
     """
     ontology : LPAREN START URI statement RPAREN
+    ontology : LPAREN START title statement RPAREN
     ontology : statement
     """
     if len(p) == 6:
 
-        p[0] = p[4]
+        p[0] = [p[3], p[4]]
 
     else:
 
         p[0] = p[1]
 
+def p_title(p):
+    """
+    title : LPAREN TITLE NONLOGICAL RPAREN
+    title : LPAREN TITLE URI RPAREN
+    """
+
+    p[0] = ["title", p[3]]
 
 def p_ontology_error(p):
     """
@@ -141,10 +151,13 @@ def p_statement(p):
     statement : import statement
     statement : comment statement
     statement : module statement
+    statement : const statement
+    statement : title statement
     statement : axiom
     statement : import
     statement : comment
     statement : module
+    statement : const
     """
 
     if len(p) == 3:
@@ -163,12 +176,18 @@ def p_statement(p):
         p[0] = [p[1]]
 
 
+def p_const(p):
+    """
+    const : LPAREN SET LPAREN NONLOGICAL QUOTED_STRING RPAREN RPAREN
+    """
+    p[0] = [p[2], p[4], p[5]]
+
 def p_comment(p):
     """
+    comment : LPAREN CLCOMMENT QUOTED_STRING
     comment : LPAREN CLCOMMENT QUOTED_STRING RPAREN
     """
 
-    # p[0] = p[3]
     p[0] = [p[2], p[3]]
 
 def p_comment_error(p):
@@ -188,7 +207,7 @@ def p_module(p):
 
     # TODO: doing nothing with cl-module right now ...
     # p[0] = p[3]
-    p[0] = [p[2], p[5]]
+    p[0] = None
 
 def p_module_error(p):
     """
@@ -311,12 +330,21 @@ def p_biconditional(p):
     biconditional : LPAREN IFF axiom axiom RPAREN
     """
 
-    if conditionals:
-        p[0] = Biconditional([p[3], p[4]])
-    else:
-        p[0] = Conjunction([Disjunction([Negation(p[3]), p[4]]),
+    if(len(p) == 7):
+        if conditionals:
+            p[0] = Biconditional([p[4], p[5]])
+        else:
+            p[0] = Conjunction([Disjunction([Negation(p[4]), p[5]]),
+                                   Disjunction([Negation(p[5]), p[4]])
+                                  ])
+    else:        
+        if conditionals:
+            p[0] = Biconditional([p[3], p[4]])
+        else:
+            p[0] = Conjunction([Disjunction([Negation(p[3]), p[4]]),
                                    Disjunction([Negation(p[4]), p[3]])
                                   ])
+
 
 
 def p_biconditional_error(p):
@@ -381,9 +409,13 @@ def p_universal_error(p):
 def p_predicate(p):
     """
     predicate : LPAREN NONLOGICAL parameter RPAREN
+    predicate : LPAREN comment NONLOGICAL RPAREN parameter RPAREN
     """
 
-    p[0] = Predicate(p[2], p[3])
+    if(len(p) == 5):
+        p[0] = Predicate(p[2], p[3])
+    elif(len(p) == 7):
+        p[0] = Predicate(p[3], p[5])
 
 def p_predicate_error(p):
     """
@@ -570,22 +602,24 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
 
     ontology.basepath = (sub, base)
 
-    for logical_thing in parsed_objects:
+    if(parsed_objects[0][0] == 'title'):
+        ontology.set_name(parsed_objects[0][1])
+    else:
+        ontology.set_name(parsed_objects[0])
+
+    for logical_thing in parsed_objects[1]:
 
         if isinstance(logical_thing, Logical):
 
             ontology.add_axiom(logical_thing)
 
         elif isinstance(logical_thing, list):
-            if(logical_thing[0] == 'cl-comment'):
-                ontology.add_comment(logical_thing[1])
-            elif(logical_thing[0] == 'cl-import'):
-                ontology.add_import(logical_thing[1])
-            elif(logical_thing[0] == 'cl-module'):
-                ontology.add_module(logical_thing[1])
+            if(logical_thing[0] == "="):
+                ontology.consts.update([logical_thing[1]])
+            ontology.add_comment(logical_thing[1])
 
         elif isinstance(logical_thing, str):
-            ontology.add_import(logical_thing)
+            ontology.add_comment(logical_thing)
 
     if resolve:
 
