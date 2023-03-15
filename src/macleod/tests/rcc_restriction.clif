@@ -1,7 +1,7 @@
-(cl:text 
-(cl:ttl "http://colore.oor.net/mereotopology/rcc_restriction.clif")
+(cl-text 
+(cl-ttl "http://colore.oor.net/mereotopology/rcc_restriction.clif")
 
-(cl:comment 'Demonstrating the use of a non-used variables'
+(cl-comment 'Demonstrating the use of a non-used variables'
 (forall (x y)
 	(if
 		(P x y)
@@ -12,12 +12,16 @@
 )
 )
 
-(cl:ttl RestrictedModule 
-(cl:text 
-(cl:imports "http://colore.oor.net/mereotopology/rcc.clif")
+(forall (a b)
+	(PP b a)
+)
+
+(cl-ttl RestrictedModule 
+(cl-text 
+(cl-imports "http://colore.oor.net/mereotopology/rcc.clif")
  
-(cl:restrict S 
-	(cl:text 
+(cl-restrict S 
+	(cl-text 
 		(forall (x)
 			(P x uni)
 		)

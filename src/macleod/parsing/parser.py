@@ -12,6 +12,7 @@ from macleod.logical.logical import Logical
 from macleod.logical.negation import Negation
 from macleod.logical.quantifier import (Universal, Existential, Quantifier)
 from macleod.logical.symbol import (Function, Predicate)
+from macleod.logical.comment import Comment
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,6 +51,7 @@ reserved = {
         'cl-imports': 'IMPORT',
 #        'cl:imports': 'IMPORT',
         'cl-module': 'CLMODULE',
+        'cl-restrict': 'RESTRICT',
 #        'cl:module': 'CLMODULE',
 #        'cl:indiscourse': 'CLCOMMENT',
 #        'cl:outdiscourse': 'CLCOMMENT',
@@ -114,12 +116,15 @@ def p_starter(p):
 def p_ontology(p):
     """
     ontology : LPAREN START URI statement RPAREN
-    ontology : LPAREN START title statement RPAREN
+    ontology : LPAREN START statement RPAREN
     ontology : statement
     """
     if len(p) == 6:
 
         p[0] = [p[3], p[4]]
+
+    elif len(p) == 5:
+        p[0] = p[3]
 
     else:
 
@@ -144,6 +149,19 @@ def p_ontology_error(p):
 
     raise TypeError("Error in ontology: bad statement")
 
+def p_restriction(p):
+    """
+    restriction : LPAREN RESTRICT NONLOGICAL LPAREN START statement RPAREN RPAREN
+    """
+    p[0] = ["restrict", p[3], p[6]]
+
+
+def p_submodule(p):
+    """
+    submodule : LPAREN TITLE NONLOGICAL LPAREN START statement RPAREN RPAREN
+    """
+    p[0] = ["submodule", p[3], p[6]]
+
 
 def p_statement(p):
     """
@@ -153,11 +171,15 @@ def p_statement(p):
     statement : module statement
     statement : const statement
     statement : title statement
+    statement : submodule statement
+    statement : restriction statement
     statement : axiom
     statement : import
     statement : comment
     statement : module
     statement : const
+    statement : restriction
+    statement : submodule
     """
 
     if len(p) == 3:
@@ -233,7 +255,8 @@ def p_import_error(p):
 
 def p_axiom(p):
     """
-    axiom : negation
+    axiom : commented_axiom
+          | negation
           | universal
           | existential
           | conjunction
@@ -244,6 +267,12 @@ def p_axiom(p):
     """
 
     p[0] = p[1]
+
+def p_commented_axiom(p):
+    """
+    commented_axiom : LPAREN CLCOMMENT QUOTED_STRING axiom RPAREN
+    """
+    p[0] = ['cl-comment', p[3], p[4]]
 
 def p_negation(p):
     """
@@ -607,26 +636,38 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
     else:
         ontology.set_name(parsed_objects[0])
 
-    for logical_thing in parsed_objects[1]:
-
-        if isinstance(logical_thing, Logical):
-
-            ontology.add_axiom(logical_thing)
-
-        elif isinstance(logical_thing, list):
-            if(logical_thing[0] == "="):
-                ontology.consts.update([logical_thing[1]])
-            elif(logical_thing[0] == "cl-imports"):
-                ontology.add_comment("import "+ logical_thing[1])
-            elif(logical_thing[0] == "cl-comment"):
-                ontology.add_comment(logical_thing[1])
-
-        elif isinstance(logical_thing, str):
-            ontology.add_comment(logical_thing)
-
+    for logical_thing in parsed_objects[1:]:
+        ontology = add_statement(ontology, logical_thing)
+        
     if resolve:
 
         ontology.resolve_imports()
+
+    return ontology
+
+
+def add_statement(ontology, thing):
+    if isinstance(thing, Logical):
+            ontology.add_axiom(thing)
+
+
+    elif isinstance(thing, list):
+        if(thing[0] == "="):
+            ontology.consts.update([thing[1]])
+        elif(thing[0] == "cl-imports"):
+            ontology.add_comment("import "+ thing[1])
+        elif(thing[0] == "cl-comment"):
+            ontology.add_comment(thing[1])
+            if(len(thing) > 2):
+                for ax in thing:
+                    add_statement(ontology, ax)
+        #logical_thing[1] will be the name of the submodule
+        #logical_thing[2] will be the list of axioms.
+        elif(thing[0] == "submodule"):
+            ontology.add_module(thing[1], thing[2])
+
+        elif isinstance(thing, str):
+            ontology.add_comment(thing)
 
     return ontology
 

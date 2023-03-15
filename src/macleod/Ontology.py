@@ -15,6 +15,10 @@ import macleod.Process
 import macleod.dl.filters
 import macleod.dl.translation
 
+from macleod.logical.logical import Logical
+from macleod.logical.quantifier import Quantifier
+import macleod.src.macleod.logical.comment as Comment
+
 
 class Ontology(object):
     """
@@ -98,6 +102,16 @@ class Ontology(object):
         global var_enum
         var_enum = 0
 
+    def set_name(self, text):
+        """
+        Updates the name of the ontology
+
+        :param text, String for the new name
+        :return None
+        """        
+
+        self.name = text
+
     def to_ffpcnf(self):
         """
         Translate any held Axioms to their equivalent function-free prenex
@@ -109,10 +123,9 @@ class Ontology(object):
 
         temp_axioms = []
 
-        for axiom in self.statements:
+        for axiom in self.axioms:
             print(axiom)
-            if(isinstance(axiom, macleod.logical.axiom.Axiom)):
-                temp_axioms.append(axiom.ff_pcnf())
+            temp_axioms.append(axiom.ff_pcnf())
 
         self.axioms = temp_axioms
         return self.axioms
@@ -207,7 +220,7 @@ class Ontology(object):
         :return None
         """
 
-        self.statements.append(comment)
+        self.statements.append(Comment.Comment(comment))
 
     def add_conjecture(self, logical):
         """
@@ -230,18 +243,32 @@ class Ontology(object):
         """
 
         self.imports[path] = None
-        self.statements.append(path)
+        self.add_comment(path)
 
-    def add_module(self, uri):
-        """
-        Accepts a uri (whatever that is) and adds the module declaration to 
-        the list of statements.
+    def add_module(self, name, axioms):
+        self.add_comment("New Submodule: " + name)
+
         
-        :param String uri, I think this is meant to be URL and is a typo...
-        :return None
-        """
-
-        self.statements.append(uri)
+        for thing in axioms:
+            if isinstance(thing, Logical):
+                self.add_comment(thing.to_onf())
+            elif isinstance(thing, list):
+                if(thing[0] == 'cl-comment'):
+                    self.add_comment(thing[1])
+                elif(thing[0] == 'cl-imports'):
+                    self.add_comment("import "+ thing[1])
+                elif(thing[0] == 'cl-module'):
+                    self.add_module(thing[1], thing[2])
+                elif(thing[0] == 'restrict'):
+                    self.add_comment(thing[1])
+                    for ax in thing[2]:
+                        if(isinstance(thing, list)):
+                            self.add_comment(repr(ax))
+                        elif isinstance(thing, Logical) or issubclass(thing.type(), Logical):
+                            self.add_comment(ax.to_onf())
+                        else:
+                            self.add_comment(ax)
+                        
 
     def analyze_ontology(self):
         """
