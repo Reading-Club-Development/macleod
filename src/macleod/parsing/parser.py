@@ -43,11 +43,24 @@ reserved = {
         'iff': 'IFF',
         'if': 'IF',
         "=":'SET',
+<<<<<<< HEAD
         'cl:ttl': 'TITLE',
         'cl:comment': 'CLCOMMENT',
         'cl:text': 'START',
         'cl:imports': 'IMPORT',
         'cl:restrict': 'RESTRICT',
+=======
+        'cl-ttl': 'TITLE',
+        'cl-comment': 'CLCOMMENT',
+#        'cl:comment': 'CLCOMMENT',
+        'cl-text': 'START',
+#        'cl-text': 'START',
+        'cl-imports': 'IMPORT',
+#        'cl:imports': 'IMPORT',
+        'cl-module': 'CLMODULE',
+        'cl-restrict': 'RESTRICT',
+#        'cl:module': 'CLMODULE',
+>>>>>>> 8cb28e9299405c0b1860519da2770fe5d56be9a4
 #        'cl:indiscourse': 'CLCOMMENT',
 #        'cl:outdiscourse': 'CLCOMMENT',
 }
@@ -198,12 +211,16 @@ def p_const(p):
     """
     p[0] = [p[2], p[4], p[5]]
 
+<<<<<<< HEAD
 def p_inline(p):
     "inline : LPAREN CLCOMMENT QUOTED_STRING"
     p[0] = p[3]
 
+=======
+>>>>>>> 8cb28e9299405c0b1860519da2770fe5d56be9a4
 def p_comment(p):
     """
+    comment : LPAREN CLCOMMENT QUOTED_STRING
     comment : LPAREN CLCOMMENT QUOTED_STRING RPAREN
     """
 
@@ -267,9 +284,15 @@ def p_axiom(p):
 
 def p_commented_axiom(p):
     """
+<<<<<<< HEAD
     commented_axiom : inline axiom RPAREN
     """
     p[0] = ['inline', p[1], p[2]]
+=======
+    commented_axiom : LPAREN CLCOMMENT QUOTED_STRING axiom RPAREN
+    """
+    p[0] = ['cl-comment', p[3], p[4]]
+>>>>>>> 8cb28e9299405c0b1860519da2770fe5d56be9a4
 
 def p_negation(p):
     """
@@ -653,8 +676,11 @@ def add_statement(ontology, thing):
             ontology.consts.update([thing[1]])
         elif(thing[0] == "cl-imports"):
             ontology.add_comment("import "+ thing[1])
+<<<<<<< HEAD
         elif(thing[0] == "inline"):
             ontology.add_commented_axiom(thing[1], thing[2])
+=======
+>>>>>>> 8cb28e9299405c0b1860519da2770fe5d56be9a4
         elif(thing[0] == "cl-comment"):
             ontology.add_comment(thing[1])
             if(len(thing) > 2):

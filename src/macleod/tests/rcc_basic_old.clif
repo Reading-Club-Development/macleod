@@ -95,7 +95,7 @@
 
 (forall (x y)
 	(if
-		(not (= y uni))
+		(not (Z y uni))
 		(iff	
 			(o x (compl y))
 			(not (p x y))

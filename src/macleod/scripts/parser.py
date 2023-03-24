@@ -43,7 +43,7 @@ def parse_clif(filepath, format="None", mode="full", OWL_version="Full", enum=Fa
         logging.getLogger(__name__).info("Starting to parse " + filepath)
         convert_file(full_path, format, sub, base, resolve)
 
-    if os.path.isdir(full_path):
+    elif os.path.isdir(full_path):
         tempfolder = macleod.Filemgt.read_config('converters', 'tempfolder')
         ignores = [tempfolder]
         cl_ending = macleod.Filemgt.read_config('cl', 'ending')
