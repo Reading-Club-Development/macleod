@@ -78,7 +78,7 @@ def t_URI(t):
     return t
 
 def t_NONLOGICAL(t):
-    r'[<>=\w\-\+_=]+'
+    r'[<>=\w\-\:\+_=]+'
     if t.value in reserved:
         t.type = reserved[t.value]
     return t
@@ -150,11 +150,11 @@ def p_restriction(p):
     p[0] = ["restrict", p[3], p[6]]
 
 
-def p_submodule(p):
+def p_module(p):
     """
-    submodule : LPAREN TITLE NONLOGICAL LPAREN START statement RPAREN RPAREN
+    module : LPAREN TITLE NONLOGICAL LPAREN START statement RPAREN RPAREN
     """
-    p[0] = ["submodule", p[3], p[6]]
+    p[0] = ["module", p[3], p[6]]
 
 
 def p_statement(p):
@@ -165,7 +165,6 @@ def p_statement(p):
     statement : module statement
     statement : const statement
     statement : title statement
-    statement : submodule statement
     statement : restriction statement
     statement : axiom
     statement : import
@@ -173,7 +172,6 @@ def p_statement(p):
     statement : module
     statement : const
     statement : restriction
-    statement : submodule
     """
 
     if len(p) == 3:
@@ -219,23 +217,6 @@ def p_comment_error(p):
 
     raise TypeError("Error in comment: bad string")
 
-def p_module(p):
-    """
-    module : LPAREN CLMODULE NONLOGICAL LPAREN IMPORT URI RPAREN RPAREN
-    """
-
-    # TODO: doing nothing with cl-module right now ...
-    # p[0] = p[3]
-    p[0] = None
-
-def p_module_error(p):
-    """
-    module : LPAREN CLMODULE error
-    module : LPAREN CLMODULE LPAREN IMPORT URI RPAREN RPAREN
-    """
-
-    raise TypeError("Error in module")
-
 def p_import(p):
     """
     import : LPAREN IMPORT URI RPAREN
@@ -265,9 +246,23 @@ def p_axiom(p):
 
     p[0] = p[1]
 
+def p_base_axiom(p):
+    """
+    base_axiom : negation 
+        | universal
+        | existential
+        | conjunction
+        | disjunction
+        | implication
+        | biconditional
+        | predicate
+    """
+
+    p[0] = p[1]
+
 def p_commented_axiom(p):
     """
-    commented_axiom : inline axiom RPAREN
+    commented_axiom : inline base_axiom RPAREN
     """
     p[0] = ['inline', p[1], p[2]]
 
@@ -654,15 +649,15 @@ def add_statement(ontology, thing):
         elif(thing[0] == "cl-imports"):
             ontology.add_comment("import "+ thing[1])
         elif(thing[0] == "inline"):
-            ontology.add_commented_axiom(thing[1], thing[2])
+            ontology.add_commented_axiom(thing[2], thing[1])
         elif(thing[0] == "cl-comment"):
             ontology.add_comment(thing[1])
             if(len(thing) > 2):
                 for ax in thing:
                     add_statement(ontology, ax)
-        #logical_thing[1] will be the name of the submodule
+        #logical_thing[1] will be the name of the module
         #logical_thing[2] will be the list of axioms.
-        elif(thing[0] == "submodule"):
+        elif(thing[0] == "module"):
             ontology.add_module(thing[1], thing[2])
 
         elif isinstance(thing, str):

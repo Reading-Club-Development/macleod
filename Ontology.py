@@ -17,6 +17,8 @@ import macleod.Process
 import macleod.dl.filters
 import macleod.dl.translation
 
+import macleod.logical.commented_axiom
+
 from macleod.logical.logical import Logical
 from macleod.logical.quantifier import Quantifier
 import macleod.src.macleod.logical.comment as Comment
@@ -215,9 +217,7 @@ class Ontology(object):
 
 
     def add_commented_axiom(self, logical, comment):
-        """
-        Accepts and Logical Object and a String and turns them into a commented axiom
-        """
+        self.statements.append(macleod.logical.commented_axiom.Commented_Axiom(logical, comment))
         self.axioms.append(macleod.logical.commented_axiom.Commented_Axiom(logical, comment))
 
     

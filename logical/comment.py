@@ -41,7 +41,10 @@ class Comment(object):
         :return str tptp, TPTP formatted version of this axiom
         """
 
-        return "%" + self.text
+        # via http://tptp.cs.miami.edu/TPTP/QuickGuide/Problems.html
+        # and https://tptp.org/NonClassicalLogic/SyntaxBNF.html
+
+        return "% " + self.text
 
 
     def to_ladr(self):
@@ -51,7 +54,7 @@ class Comment(object):
         :return str ladr, LADR formatted version of this axiom
         """
 
-        return self.text
+        return "%\% " + self.text
 
     def to_latex(self):
         """
@@ -60,6 +63,6 @@ class Comment(object):
         :return str latex, LaTeX formatted version of this axiom
         """
 
-        return self.text
+        return "% " + self.text
 
 
