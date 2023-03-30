@@ -194,7 +194,7 @@ def p_const(p):
     """
     const : LPAREN SET LPAREN NONLOGICAL QUOTED_STRING RPAREN RPAREN
     """
-    p[0] = [p[2], p[4], p[5]]
+    p[0] = ["FUCKER CONST", p[2], p[4], p[5]]
 
 def p_inline(p):
     "inline : LPAREN CLCOMMENT QUOTED_STRING"
@@ -438,9 +438,12 @@ def p_commented_predicate(p):
 def p_predicate(p):
     """
     predicate : LPAREN NONLOGICAL parameter RPAREN
-    predicate : LPAREN SET parameter RPAREN
+    predicate : LPAREN SET LPAREN NONLOGICAL NONLOGICAL RPAREN RPAREN
     """
-    p[0] = Predicate(p[2], p[3])
+    if(len(p) == 5):
+        p[0] = Predicate(p[2], p[3])
+    else:
+        p[0] = Predicate(p[2], [p[3], p[4]])
 
 def p_predicate_error(p):
     """
