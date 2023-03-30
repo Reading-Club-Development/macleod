@@ -1,3 +1,3 @@
-import macleod.scripts.parser as parser
+import macleod.scripts.parserlib as parserlib
 
-parser.parse_clif("macleod/src/macleod/tests/rcc_restriction.clif", "tptp")
+parserlib.parse_clif("macleod/src/macleod/tests/rcc_extended.clif", "latex")

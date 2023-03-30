@@ -52,7 +52,7 @@ def main():
     args.ffpcnf = False
 
     # Parse out the ontology object then print it nicely
-    default_basepath = macleod.Filemgt.get_ontology_basepath()
+    default_basepath = Macleod.Filemgt.get_ontology_basepath()
     if args.sub is None:
         args.sub = default_basepath[0]
     if args.base is None:
@@ -98,7 +98,7 @@ def consistent(filename, args):
 
         (return_value, fastest_reasoner) = ontology.check_consistency()
 
-        if return_value == macleod.Ontology.CONSISTENT:
+        if return_value == Macleod.Ontology.CONSISTENT:
             if args.nontrivial:
                 print(fastest_reasoner.name + " proved nontrivial consistency of " + ontology.name)
             else:
@@ -145,5 +145,6 @@ def consistent(filename, args):
 
 if __name__ == '__main__':
     sys.exit(main())
+
 
 

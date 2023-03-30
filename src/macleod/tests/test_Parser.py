@@ -5,7 +5,7 @@ from macleod.logical.axiom import Axiom
 from macleod.logical.quantifier import (Universal, Existential, Quantifier)
 import macleod.Ontology as Ontology
 
-import macleod.scripts.parser as Parser
+import macleod.scripts.parserlib as Parser
 
 class OnologyTest(unittest.TestCase):
     """

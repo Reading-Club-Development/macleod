@@ -12,7 +12,7 @@ from macleod.logical.logical import Logical
 from macleod.logical.negation import Negation
 from macleod.logical.quantifier import (Universal, Existential, Quantifier)
 from macleod.logical.symbol import (Function, Predicate)
-from macleod.logical.comment import Comment
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -242,6 +242,7 @@ def p_axiom(p):
           | implication
           | biconditional
           | predicate
+          | commented_predicate
     """
 
     p[0] = p[1]
@@ -427,16 +428,19 @@ def p_universal_error(p):
 
     raise TypeError("Error in universal: bad formula")
 
+
+def p_commented_predicate(p):
+    """
+    commented_predicate : LPAREN LPAREN CLCOMMENT QUOTED_STRING NONLOGICAL RPAREN parameter RPAREN
+    """
+    p[0] = ["inline", p[4], Predicate(p[5], p[7])]
+
 def p_predicate(p):
     """
     predicate : LPAREN NONLOGICAL parameter RPAREN
-    predicate : LPAREN comment NONLOGICAL RPAREN parameter RPAREN
+    predicate : LPAREN SET parameter RPAREN
     """
-
-    if(len(p) == 5):
-        p[0] = Predicate(p[2], p[3])
-    elif(len(p) == 7):
-        p[0] = Predicate(p[3], p[5])
+    p[0] = Predicate(p[2], p[3])
 
 def p_predicate_error(p):
     """
@@ -513,7 +517,6 @@ def p_nonlogicals(p):
         p[0] = nonlogicals
 
     else:
-
         p[0] = [p[1]]
 
 
@@ -646,11 +649,11 @@ def add_statement(ontology, thing):
     elif isinstance(thing, list):
         if(thing[0] == "="):
             ontology.consts.update([thing[1]])
-        elif(thing[0] == "cl-imports"):
+        elif(thing[0] == "cl:imports"):
             ontology.add_comment("import "+ thing[1])
         elif(thing[0] == "inline"):
             ontology.add_commented_axiom(thing[2], thing[1])
-        elif(thing[0] == "cl-comment"):
+        elif(thing[0] == "cl:comment"):
             ontology.add_comment(thing[1])
             if(len(thing) > 2):
                 for ax in thing:

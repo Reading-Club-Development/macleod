@@ -432,6 +432,9 @@ class Axiom(object):
             elif isinstance(logical, Existential):
                 return "({} ({}))".format(("? [{}] : " * len(logical.variables)).format(*[str.upper(var) for var in logical.variables]), tptp_logical(logical.terms[0]))
 
+            elif isinstance(logical, list):
+                return "/*" + logical[1] + "\\* " + str(logical[2])
+
             else:
                 raise ValueError("Not a valid type for TPTP output")
 
@@ -489,6 +492,9 @@ class Axiom(object):
             elif isinstance(logical, Existential):
                 return "({} {})".format(("exists {} " * len(logical.variables)).format(*logical.variables), ladr_logical(logical.terms[0]))
 
+            elif isinstance(logical, list):
+                return "/*" + logical[1] + "\\* " + str(logical[2])
+
             else:
                 raise ValueError("Not a valid type for LADR output")
 
@@ -544,6 +550,9 @@ class Axiom(object):
 
             elif isinstance(logical, Existential):
                 return "{} \\left[ {} \\right]".format(("\\exists {}\\; " * len(logical.variables)).format(*logical.variables), latex_logical(logical.terms[0]))
+
+            elif isinstance(logical, list):
+                return "/* " + logical[1] + "*/ " + str(logical[2])
 
             else:
                 raise ValueError("Not a valid type for LaTeX output")
@@ -626,8 +635,8 @@ def __analyze_logical__(term):
             _ = [analyze_logical(x, accumulator, term) for x in term.get_term()]
 
         else:
-
-            _ = [analyze_logical(x, accumulator, term) for x in term.get_term()]
+            if not isinstance(term, list):
+                _ = [analyze_logical(x, accumulator, term) for x in term.get_term()]
 
 
     analysis = [[], [], [], [], [], [], [], [], [], [], []]

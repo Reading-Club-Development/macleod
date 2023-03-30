@@ -21,7 +21,7 @@ import macleod.logical.commented_axiom
 
 from macleod.logical.logical import Logical
 from macleod.logical.quantifier import Quantifier
-import macleod.src.macleod.logical.comment as Comment
+import macleod.logical.comment as Comment
 
 
 class Ontology(object):

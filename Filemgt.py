@@ -13,9 +13,9 @@ import sys, os, platform, logging, logging.config
 
 #Macleod_dir = os.path.realpath(__file__).rsplit(os.sep, 1)[0] + os.sep + '..'
 
-WIN_config_file = 'Macleod_win.conf'
-LINUX_config_file = 'Macleod_linux.conf'
-MAC_config_file = 'Macleod_mac.conf'
+WIN_config_file = 'macleod_win.conf'
+LINUX_config_file = 'macleod_linux.conf'
+MAC_config_file = 'macleod_mac.conf'
 
 class MacleodConfigParser(object):
 
