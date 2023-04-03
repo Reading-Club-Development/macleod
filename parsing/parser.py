@@ -30,7 +30,8 @@ tokens = [
     "URI",
     "NONLOGICAL",
     "COMMENT",
-    "QUOTED_STRING"
+    "QUOTED_STRING",
+    "NAME_STRING"
 ]
 
 # Adding new CL keywords, but all with colons are not yet processed
@@ -59,6 +60,7 @@ precedence = [['left', 'IFF'],
 
 t_COMMENT = r'\/\*["\w\W\d*]+?\*\/'
 t_QUOTED_STRING = r"'[\w\s.\-\+\*:,\(\)<=>;]+?'"
+t_NAME_STRING = r"\"[\w\s.\-\+\*:,\(\)<=>;]+?\""
 t_ignore = ' \t\r\n\f\v'
 
 literals = [ '(', ')' ]
@@ -192,9 +194,9 @@ def p_statement(p):
 
 def p_const(p):
     """
-    const : LPAREN SET LPAREN NONLOGICAL QUOTED_STRING RPAREN RPAREN
+    const : LPAREN SET LPAREN NONLOGICAL NAME_STRING RPAREN RPAREN
     """
-    p[0] = ["FUCKER CONST", p[2], p[4], p[5]]
+    p[0] = [p[2], p[4], p[5]]
 
 def p_inline(p):
     "inline : LPAREN CLCOMMENT QUOTED_STRING"
@@ -432,18 +434,21 @@ def p_universal_error(p):
 def p_commented_predicate(p):
     """
     commented_predicate : LPAREN LPAREN CLCOMMENT QUOTED_STRING NONLOGICAL RPAREN parameter RPAREN
+    commented_predicate : LPAREN LPAREN CLCOMMENT QUOTED_STRING NAME_STRING RPAREN parameter RPAREN
     """
     p[0] = ["inline", p[4], Predicate(p[5], p[7])]
 
 def p_predicate(p):
     """
     predicate : LPAREN NONLOGICAL parameter RPAREN
+    predicate : LPAREN NAME_STRING parameter RPAREN
+    predicate : LPAREN SET parameter RPAREN
     predicate : LPAREN SET LPAREN NONLOGICAL NONLOGICAL RPAREN RPAREN
     """
     if(len(p) == 5):
         p[0] = Predicate(p[2], p[3])
     else:
-        p[0] = Predicate(p[2], [p[3], p[4]])
+        p[0] = Predicate(p[2], [p[4], p[5]])
 
 def p_predicate_error(p):
     """
@@ -652,6 +657,7 @@ def add_statement(ontology, thing):
     elif isinstance(thing, list):
         if(thing[0] == "="):
             ontology.consts.update([thing[1]])
+            ontology.add_axiom(Predicate(thing[0], thing[1:]))
         elif(thing[0] == "cl:imports"):
             ontology.add_comment("import "+ thing[1])
         elif(thing[0] == "inline"):
@@ -665,6 +671,16 @@ def add_statement(ontology, thing):
         #logical_thing[2] will be the list of axioms.
         elif(thing[0] == "module"):
             ontology.add_module(thing[1], thing[2])
+        elif(thing[0] == 'restrict'):
+            ontology.add_comment("Restriction: " + thing[1])
+            for ax in thing[2]:
+                if(isinstance(thing, list)):
+                    ontology.add_comment(repr(ax))
+                elif isinstance(thing, Logical) or issubclass(thing.type(), Logical):
+                    ontology.add_comment(ax.to_onf())
+                else:
+                    ontology.add_comment(ax)
+            ontology.add_comment("End Restriction: " + thing[1])
 
         elif isinstance(thing, str):
             ontology.add_comment(thing)

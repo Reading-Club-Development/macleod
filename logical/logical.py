@@ -44,7 +44,7 @@ class Logical(object):
         :return Disjunction()
         '''
 
-        from Macleod.logical.connective import (Conjunction, Disjunction, Connective)
+        from macleod.logical.connective import (Conjunction, Disjunction, Connective)
 
         return Disjunction([self, other])
 
@@ -56,7 +56,7 @@ class Logical(object):
         :return Negation()
         '''
 
-        from Macleod.logical.negation import Negation
+        from macleod.logical.negation import Negation
 
         return Negation(self)
 
@@ -92,7 +92,7 @@ class Logical(object):
         :return Boolean, True or False depending on ONF state
         '''
 
-        raise NotImplementedError
+        print("uhhh...")
 
     def to_onf(self):
         '''
@@ -105,4 +105,4 @@ class Logical(object):
         :return Logical, A copy of the logical in ONF form
         '''
 
-        raise NotImplementedError
+        return self

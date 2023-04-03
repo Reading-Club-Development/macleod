@@ -127,12 +127,12 @@ class Ontology(object):
 
         temp_axioms = []
 
-        for axiom in self.axioms:
+        for axiom in self.statements:
             print(axiom)
             temp_axioms.append(axiom.ff_pcnf())
 
-        self.axioms = temp_axioms
-        return self.axioms
+        self.statements = temp_axioms
+        return self.statements
 
     def resolve_imports(self):
         """
@@ -269,7 +269,7 @@ class Ontology(object):
                 elif(thing[0] == 'cl-module'):
                     self.add_module(thing[1], thing[2])
                 elif(thing[0] == 'restrict'):
-                    self.add_comment(thing[1])
+                    self.add_comment("Restriction: " + thing[1])
                     for ax in thing[2]:
                         if(isinstance(thing, list)):
                             self.add_comment(repr(ax))
@@ -277,6 +277,7 @@ class Ontology(object):
                             self.add_comment(ax.to_onf())
                         else:
                             self.add_comment(ax)
+                    self.add_comment("End Restriction: " + thing[1])
                         
 
     def analyze_ontology(self):
@@ -929,6 +930,12 @@ class Ontology(object):
 
         rep += '-' * (len(self.name) // 2 - 4) + ' AXIOMS ' + '-' * (len(self.name) // 2 - 4) + '\n'
         for axiom in self.axioms:
+            rep += repr(axiom) + '\n'
+
+        rep += '+' * len(self.name) + '\n'
+
+        rep += '-' * (len(self.name) // 2 - 6) + ' ALL STATEMENTS ' + '-' * (len(self.name) // 2 - 6) + '\n'
+        for axiom in self.statements:
             rep += repr(axiom) + '\n'
 
         rep += '+' * len(self.name) + '\n'

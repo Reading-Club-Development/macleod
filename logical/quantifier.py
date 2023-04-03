@@ -51,6 +51,7 @@ class Quantifier(Logical):
         else:
 
             new_child = copy.deepcopy(self.terms[0])
+            hmmm = type(new_child)
             new_child = new_child.to_onf()
 
             return type(self)(self.variables, [new_child])

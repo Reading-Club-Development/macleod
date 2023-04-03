@@ -14,6 +14,9 @@ class Commented_Axiom():
         if(isinstance(comment, str)):
             self.comment = Comment(comment)
 
+    def __repr__(self) -> str:
+        return str(self.axiom) + " " + self.comment.text
+
 
     def to_tptp(self):
         return self.axiom.to_tptp() + " " + self.comment.to_tptp()
@@ -23,3 +26,6 @@ class Commented_Axiom():
     
     def to_latex(self):
         return self.axiom.to_latex() + " " + self.comment.to_latex()
+    
+    def ff_pcnf(self):
+        return str(self.axiom.ff_pcnf()) + " " + self.comment.ff_pcnf()

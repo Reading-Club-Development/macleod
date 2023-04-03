@@ -77,17 +77,19 @@ def convert_file(file, format, sub, base, resolve, preserve_conditionals = None,
         exit(-1)
 
     if format is None:
+        print(ontology)
+    elif format.lower() == "ffpcnf":
         print(ontology.to_ffpcnf())
         return ontology
     
-    elif format == "tptp":
+    elif format.lower() == "tptp":
         print(ontology.to_tptp())
         if output:
             filename = ontology.write_tptp_file()
             logging.getLogger(__name__).info("Produced TPTP file " + filename)
             return filename
 
-    elif format == "owl":
+    elif format.lower() == "owl":
         # argument full has been used to store the OWL Profile
         onto = ontology.to_owl(owlType(type))
 
@@ -99,7 +101,7 @@ def convert_file(file, format, sub, base, resolve, preserve_conditionals = None,
             filename = ontology.write_owl_file()
             logging.getLogger(__name__).info("Produced OWL file " + filename)
 
-    elif format == "ladr":
+    elif format.lower() == "ladr":
         print(ontology.to_ladr())
 
         if output:
@@ -107,7 +109,7 @@ def convert_file(file, format, sub, base, resolve, preserve_conditionals = None,
             logging.getLogger(__name__).info("Produced LADR file " + filename)
             return filename
 
-    elif format == "latex":
+    elif format.lower() == "latex":
         if output:
             filename = ontology.write_latex_file(enum)
             logging.getLogger(__name__).info("Produced LaTeX file " + filename)
@@ -117,7 +119,7 @@ def convert_file(file, format, sub, base, resolve, preserve_conditionals = None,
     
 
     else:
-        print("ERROR: IMPROPER FORMAT FIELD")
+        print(ontology)
 
 
 #takes a string describing the OWL version and returns the proper Owl.Profile object

@@ -10,6 +10,8 @@ from macleod.logical.negation import Negation
 from macleod.logical.symbol import (Function, Predicate)
 from macleod.logical.quantifier import (Universal, Existential, Quantifier)
 
+from macleod.logical.logical import Logical
+
 LOGGER = logging.getLogger(__name__)
 
 def dfs_functions(term, accumulator, parent):
@@ -19,7 +21,19 @@ def dfs_functions(term, accumulator, parent):
     substitute on the term
     """
 
-    if isinstance(term, Predicate):
+    isPredicate = False
+
+    if(isinstance(term, Predicate)):
+        isPredicate = True
+    if isinstance(term, list):
+        for item in term:
+            if isinstance(item, Predicate):
+                isPredicate = True
+                term = item
+
+    
+
+    if isPredicate:
 
         if term.has_functions():
 
@@ -44,7 +58,7 @@ def dfs_functions(term, accumulator, parent):
 
         return type(term)(term.variables, [dfs_functions(x, accumulator, term) for x in term.get_term()])
 
-    else:
+    elif not isinstance(term, list):
 
         return type(term)([dfs_functions(x, accumulator, term) for x in term.get_term()])
 

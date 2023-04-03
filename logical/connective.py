@@ -262,12 +262,13 @@ class Connective(Logical):
 
             # Negation should be pushed in at this point so this should never happen
             if q_type is None:
-                raise ValueError("Something Borked itself in a great but terrible way!")
+                q_type = type(parent)
+                #raise ValueError("Something Borked itself in a great but terrible way!")
 
             dominant_quantifier = [x for x in self.get_term() if isinstance(x, q_type) and isinstance(x, Quantifier)]
             weaker_quantifier = [x for x in self.get_term() if not isinstance(x, q_type) and isinstance(x, Quantifier)]
 
-            if len(dominant_quantifier) != 1 or len(weaker_quantifier) != 1:
+            if len(dominant_quantifier) != 0 or len(weaker_quantifier) != 0:
                 raise ValueError("More than a single type of quantifier found, did you coalesce?")
 
             # Should have only of one of each
@@ -739,6 +740,9 @@ class Implication(Connective):
         '''
 
         return "({0} -> {1})".format(self.terms[0], self.terms[1])
+    
+    def to_onf(self):
+        return self
 
 
 class Biconditional(Connective):
