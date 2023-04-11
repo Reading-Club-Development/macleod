@@ -284,15 +284,9 @@ def p_axiom(p):
 
 def p_commented_axiom(p):
     """
-<<<<<<< HEAD
-    commented_axiom : inline axiom RPAREN
-    """
-    p[0] = ['inline', p[1], p[2]]
-=======
     commented_axiom : LPAREN CLCOMMENT QUOTED_STRING axiom RPAREN
     """
     p[0] = ['cl-comment', p[3], p[4]]
->>>>>>> 8cb28e9299405c0b1860519da2770fe5d56be9a4
 
 def p_negation(p):
     """

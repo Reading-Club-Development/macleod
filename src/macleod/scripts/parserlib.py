@@ -22,7 +22,7 @@ default_prefix = Macleod.Filemgt.read_config('cl', 'prefix')
 #base: path to directory with ontology files. Only relevant if resolve is on
 #sub: path to directory with import files. Only relevant if resolve is on
 
-def parse_clif(filepath, format="None", OWL_version="Full", enum=False, output=False, resolve=False, nocond=False, base=None, sub=None, ffpcnf=False, clip=False):
+def parse_clif(filepath, format="None", OWL_version="Full", enum=False, output=False, resolve=False, nocond=False, base=None, sub=None):
  # Parse out the ontology object then print it nicely
     default_basepath = Macleod.Filemgt.get_ontology_basepath()
     if sub is None:
@@ -56,13 +56,13 @@ def parse_clif(filepath, format="None", OWL_version="Full", enum=False, output=F
                     if single_file.endswith(cl_ending):
                         file = os.path.join(directory, single_file)
                         logging.getLogger(__name__).info("Parsing CLIF file " + file)
-                        convert_file(file, format, sub, base, resolve, nocond, output=output, enum=enum)
+                        convert_file(file, format, sub, base, resolve, nocond, output=output, enum=enum, owlVersion = OWL_version)
 
     else:
         logging.getLogger(__name__).error("Attempted to parse non-existent file or directory: " + full_path)
 
 
-def convert_file(file, format, sub, base, resolve, preserve_conditionals = None, output=False, enum=None):
+def convert_file(file, format, sub, base, resolve, preserve_conditionals = None, output=False, enum=None, owlVersion=None):
 
     global conditionals
 
@@ -89,7 +89,7 @@ def convert_file(file, format, sub, base, resolve, preserve_conditionals = None,
 
     if format is "owl":
         # argument full has been used to store the OWL Profile
-        onto = ontology.to_owl(owlType(type))
+        onto = ontology.to_owl(owlType(owlVersion))
 
         print("\n-- Translation --\n")
         print(onto.tostring())

@@ -9,7 +9,7 @@
  *******************************************************************************/
 
 (cl:text 
-(cl:ttl http://colore.oor.net/mereotopology/rcc_extended.clif)
+(cl:ttl "http://colore.oor.net/mereotopology/rcc_extended.clif")
 
 (cl:imports http://colore.oor.net/mereotopology/rcc_basic.clif)
 
@@ -24,10 +24,9 @@
 
 (cl:comment 'Giving a name to the universal region; note that uni denotes a constant here, not a variable')
 
-(= (uni 'UniversalEntity1'))
+(= (uni "UniversalEntity1"))
 
 (cl:comment 'This is a commented logical sentence called commentsent in the CL specification. For example we want to point out that we introduce a special symbol, namely << in quotation marks here' 
-
 (forall (x y)
 	(iff 
 		(and
@@ -37,8 +36,7 @@
 		("<<" x y)
 	)
 )
-
-
-
 )
+
+
 )

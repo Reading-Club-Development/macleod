@@ -28,10 +28,10 @@ default_prefix = Macleod.Filemgt.read_config('cl', 'prefix')
     #nontrivial: bool. Instantiate all predicates to check for nontrivial consistency?
     #base: Path to directory containing ontology files (basepath; only relevant when option --resolve is turned on; can also be set in configuration file
     #sub: String to replace with basepath found in imports, only relevant when option --resolve is turned on
-def main(filepath, method="simple", output=True, resolve=False, stats=True, nontrivial=False, base=None, sub=None):
+def check_consistency(filepath, method="simple", output=True, resolve=False, stats=True, nontrivial=False, base=None, sub=None):
 
 
-    LOGGER.info('Called script check_consistency')
+    LOGGER.info('Called function check_consistency')
     # Setup the command line arguments to the program
 
 
