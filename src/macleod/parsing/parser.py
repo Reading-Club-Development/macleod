@@ -12,6 +12,7 @@ from macleod.logical.logical import Logical
 from macleod.logical.negation import Negation
 from macleod.logical.quantifier import (Universal, Existential, Quantifier)
 from macleod.logical.symbol import (Function, Predicate)
+from macleod.logical.comment import Comment
 
 LOGGER = logging.getLogger(__name__)
 
@@ -41,17 +42,19 @@ reserved = {
         'forall': 'FORALL',
         'iff': 'IFF',
         'if': 'IF',
+        "=":'SET',
+        'cl-ttl': 'TITLE',
         'cl-comment': 'CLCOMMENT',
 #        'cl:comment': 'CLCOMMENT',
         'cl-text': 'START',
-#        'cl:text': 'START',
+#        'cl-text': 'START',
         'cl-imports': 'IMPORT',
 #        'cl:imports': 'IMPORT',
         'cl-module': 'CLMODULE',
+        'cl-restrict': 'RESTRICT',
 #        'cl:module': 'CLMODULE',
 #        'cl:indiscourse': 'CLCOMMENT',
 #        'cl:outdiscourse': 'CLCOMMENT',
-#        'cl:restrict': 'CLCOMMENT'
 }
 
 tokens += reserved.values()
@@ -112,16 +115,27 @@ def p_starter(p):
 def p_ontology(p):
     """
     ontology : LPAREN START URI statement RPAREN
+    ontology : LPAREN START statement RPAREN
     ontology : statement
     """
     if len(p) == 6:
 
-        p[0] = p[4]
+        p[0] = [p[3], p[4]]
+
+    elif len(p) == 5:
+        p[0] = p[3]
 
     else:
 
         p[0] = p[1]
 
+def p_title(p):
+    """
+    title : LPAREN TITLE NONLOGICAL RPAREN
+    title : LPAREN TITLE URI RPAREN
+    """
+
+    p[0] = ["title", p[3]]
 
 def p_ontology_error(p):
     """
@@ -134,6 +148,19 @@ def p_ontology_error(p):
 
     raise TypeError("Error in ontology: bad statement")
 
+def p_restriction(p):
+    """
+    restriction : LPAREN RESTRICT NONLOGICAL LPAREN START statement RPAREN RPAREN
+    """
+    p[0] = ["restrict", p[3], p[6]]
+
+
+def p_submodule(p):
+    """
+    submodule : LPAREN TITLE NONLOGICAL LPAREN START statement RPAREN RPAREN
+    """
+    p[0] = ["submodule", p[3], p[6]]
+
 
 def p_statement(p):
     """
@@ -141,10 +168,17 @@ def p_statement(p):
     statement : import statement
     statement : comment statement
     statement : module statement
+    statement : const statement
+    statement : title statement
+    statement : submodule statement
+    statement : restriction statement
     statement : axiom
     statement : import
     statement : comment
     statement : module
+    statement : const
+    statement : restriction
+    statement : submodule
     """
 
     if len(p) == 3:
@@ -163,13 +197,23 @@ def p_statement(p):
         p[0] = [p[1]]
 
 
+def p_const(p):
+    """
+    const : LPAREN SET LPAREN NONLOGICAL QUOTED_STRING RPAREN RPAREN
+    """
+    p[0] = [p[2], p[4], p[5]]
+
+def p_inline(p):
+    "inline : LPAREN CLCOMMENT QUOTED_STRING"
+    p[0] = p[3]
+
 def p_comment(p):
     """
+    comment : LPAREN CLCOMMENT QUOTED_STRING
     comment : LPAREN CLCOMMENT QUOTED_STRING RPAREN
     """
 
-    # p[0] = p[3]
-    p[0] = None
+    p[0] = [p[2], p[3]]
 
 def p_comment_error(p):
     """
@@ -203,7 +247,7 @@ def p_import(p):
     import : LPAREN IMPORT URI RPAREN
     """
 
-    p[0] = p[3]
+    p[0] = [p[2], p[3]]
 
 def p_import_error(p):
     """
@@ -214,7 +258,8 @@ def p_import_error(p):
 
 def p_axiom(p):
     """
-    axiom : negation
+    axiom : commented_axiom
+          | negation
           | universal
           | existential
           | conjunction
@@ -225,6 +270,12 @@ def p_axiom(p):
     """
 
     p[0] = p[1]
+
+def p_commented_axiom(p):
+    """
+    commented_axiom : LPAREN CLCOMMENT QUOTED_STRING axiom RPAREN
+    """
+    p[0] = ['cl-comment', p[3], p[4]]
 
 def p_negation(p):
     """
@@ -311,12 +362,21 @@ def p_biconditional(p):
     biconditional : LPAREN IFF axiom axiom RPAREN
     """
 
-    if conditionals:
-        p[0] = Biconditional([p[3], p[4]])
-    else:
-        p[0] = Conjunction([Disjunction([Negation(p[3]), p[4]]),
+    if(len(p) == 7):
+        if conditionals:
+            p[0] = Biconditional([p[4], p[5]])
+        else:
+            p[0] = Conjunction([Disjunction([Negation(p[4]), p[5]]),
+                                   Disjunction([Negation(p[5]), p[4]])
+                                  ])
+    else:        
+        if conditionals:
+            p[0] = Biconditional([p[3], p[4]])
+        else:
+            p[0] = Conjunction([Disjunction([Negation(p[3]), p[4]]),
                                    Disjunction([Negation(p[4]), p[3]])
                                   ])
+
 
 
 def p_biconditional_error(p):
@@ -381,9 +441,13 @@ def p_universal_error(p):
 def p_predicate(p):
     """
     predicate : LPAREN NONLOGICAL parameter RPAREN
+    predicate : LPAREN comment NONLOGICAL RPAREN parameter RPAREN
     """
 
-    p[0] = Predicate(p[2], p[3])
+    if(len(p) == 5):
+        p[0] = Predicate(p[2], p[3])
+    elif(len(p) == 7):
+        p[0] = Predicate(p[3], p[5])
 
 def p_predicate_error(p):
     """
@@ -539,8 +603,6 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
     :return Ontology onto, newly constructed ontology object
     """
 
-    path = os.path.normpath(os.path.join(base, path))
-
     if not os.path.isfile(path):
         LOGGER.warning("Attempted to parse non-existent file: " + path)
         return None
@@ -572,19 +634,45 @@ def parse_file(path, sub, base, resolve=False, name=None, preserve_conditionals 
 
     ontology.basepath = (sub, base)
 
-    for logical_thing in parsed_objects:
+    if(parsed_objects[0][0] == 'title'):
+        ontology.set_name(parsed_objects[0][1])
+    else:
+        ontology.set_name(parsed_objects[0])
 
-        if isinstance(logical_thing, Logical):
-
-            ontology.add_axiom(logical_thing)
-
-        elif isinstance(logical_thing, str):
-
-            ontology.add_import(logical_thing)
-
+    for logical_thing in parsed_objects[1:]:
+        ontology = add_statement(ontology, logical_thing)
+        
     if resolve:
 
         ontology.resolve_imports()
+
+    return ontology
+
+
+def add_statement(ontology, thing):
+    if isinstance(thing, Logical):
+            ontology.add_axiom(thing)
+
+
+    elif isinstance(thing, list):
+        if(thing[0] == "="):
+            ontology.consts.update([thing[1]])
+        elif(thing[0] == "cl-imports"):
+            ontology.add_comment("import "+ thing[1])
+        elif(thing[0] == "inline"):
+            ontology.add_commented_axiom(thing[1], thing[2])
+        elif(thing[0] == "cl-comment"):
+            ontology.add_comment(thing[1])
+            if(len(thing) > 2):
+                for ax in thing:
+                    add_statement(ontology, ax)
+        #logical_thing[1] will be the name of the submodule
+        #logical_thing[2] will be the list of axioms.
+        elif(thing[0] == "submodule"):
+            ontology.add_module(thing[1], thing[2])
+
+        elif isinstance(thing, str):
+            ontology.add_comment(thing)
 
     return ontology
 

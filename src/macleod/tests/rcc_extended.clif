@@ -1,0 +1,44 @@
+/*******************************************************************************
+ * Copyright (c) University of Toronto and others. All rights reserved. 
+ * The content of this file is licensed under the Creative Commons Attribution-
+ * ShareAlike 4.0 Unported license. The legal text of this license can be
+ * found at http://creativecommons.org/licenses/by-sa/4.0/legalcode.
+ *
+ * Contributors:
+ *    Torsten Hahmann - initial implementation
+ *******************************************************************************/
+
+(cl:text 
+(cl:ttl http://colore.oor.net/mereotopology/rcc_extended.clif)
+
+(cl:imports http://colore.oor.net/mereotopology/rcc_basic.clif)
+
+(cl:imports http://colore.oor.net/mereotopology/rcc.clif)
+
+(forall (x y)
+	(iff 	
+		((cl:comment 'properPartOf' pp) x y)
+		(and	
+			(p x y)
+			(not (p y x)))))
+
+(cl:comment 'Giving a name to the universal region; note that uni denotes a constant here, not a variable')
+
+(= (uni 'UniversalEntity1'))
+
+(cl:comment 'This is a commented logical sentence called commentsent in the CL specification. For example we want to point out that we introduce a special symbol, namely << in quotation marks here' 
+
+(forall (x y)
+	(iff 
+		(and
+			(P x y)
+			(not (= (x y)))
+		)
+		("<<" x y)
+	)
+)
+
+
+
+)
+)

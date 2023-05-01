@@ -391,7 +391,7 @@ def get_variables(sentence):
 def get_nonlogical_symbol_arity_from_file(input_file_name, symbol):
     """
     Evaluate and return the arity of a symbol as defined in a specific file.
-    Interface to maintain backwards compatibility with rest of Macleod code
+    Interface to maintain backwards compatibility with rest of macleod code
     base.
 
     :param str input_file_name
