@@ -2,6 +2,8 @@
 Top level container for an ontology parsed into the object structure
 """
 
+#What we refer to here as an "Ontology" is referred to in the ISO Standard as a "Text"
+
 
 import logging
 import os
@@ -14,6 +16,10 @@ import macleod.Filemgt
 import macleod.Process
 import macleod.dl.filters
 import macleod.dl.translation
+
+from macleod.logical.logical import Logical
+from macleod.logical.quantifier import Quantifier
+import macleod.src.macleod.logical.comment as Comment
 
 
 class Ontology(object):
@@ -41,6 +47,9 @@ class Ontology(object):
 
         # For the time being, just maintain a list of axioms
         self.axioms = []
+
+        # List of statements as a placeholder until we combine it with the list of axioms.
+        self.statements = []
 
         # for flexibility, maintain a separate list of conjectures
         self.conjectures = []
@@ -94,6 +103,16 @@ class Ontology(object):
         # enumerator for creating unique constants
         global var_enum
         var_enum = 0
+
+    def set_name(self, text):
+        """
+        Updates the name of the ontology
+
+        :param text, String for the new name
+        :return None
+        """        
+
+        self.name = text
 
     def to_ffpcnf(self):
         """
@@ -191,8 +210,26 @@ class Ontology(object):
         :param Logical logical, a parsed logical object
         :return None
         """
-
+        self.statements.append(macleod.logical.axiom.Axiom(logical))
         self.axioms.append(macleod.logical.axiom.Axiom(logical))
+
+
+    def add_commented_axiom(self, logical, comment):
+        """
+        Accepts and Logical Object and a String and turns them into a commented axiom
+        """
+        self.axioms.append(macleod.logical.commented_axiom.Commented_Axiom(logical, comment))
+
+    
+    def add_comment(self, comment):
+        """
+        Accepts a string comment and uh... idk adds it to the list of stuffs.
+        
+        :param String comment, a comment present in the CLIF file.
+        :return None
+        """
+
+        self.statements.append(Comment.Comment(comment))
 
     def add_conjecture(self, logical):
         """
@@ -215,6 +252,32 @@ class Ontology(object):
         """
 
         self.imports[path] = None
+        self.add_comment(path)
+
+    def add_module(self, name, axioms):
+        self.add_comment("New Submodule: " + name)
+
+        
+        for thing in axioms:
+            if isinstance(thing, Logical):
+                self.add_comment(thing.to_onf())
+            elif isinstance(thing, list):
+                if(thing[0] == 'cl-comment'):
+                    self.add_comment(thing[1])
+                elif(thing[0] == 'cl-imports'):
+                    self.add_comment("import "+ thing[1])
+                elif(thing[0] == 'cl-module'):
+                    self.add_module(thing[1], thing[2])
+                elif(thing[0] == 'restrict'):
+                    self.add_comment(thing[1])
+                    for ax in thing[2]:
+                        if(isinstance(thing, list)):
+                            self.add_comment(repr(ax))
+                        elif isinstance(thing, Logical) or issubclass(thing.type(), Logical):
+                            self.add_comment(ax.to_onf())
+                        else:
+                            self.add_comment(ax)
+                        
 
     def analyze_ontology(self):
         """
@@ -672,15 +735,28 @@ class Ontology(object):
 
         return imported_axioms
 
-    def get_all_axioms(self):
+    def get_all_axioms(self, mode="full"):
         """
         Gets a list of all axioms found in the ontology itself and,
         if resolve is set (i.e. by calling resolve_imports()),
         also in its import closure
 
-        :param resolve: Boolean that indicates whether to include all axioms from the import closure as well
+        :param self.resolve: Boolean that indicates whether to include all axioms from the import closure as well
+        :param mode: "axioms" to get only the axioms
         :return: axioms: list of all axioms (concatenation of axioms from the ontology and the imported axioms)
         """
+
+        if(mode.lower() != "axioms"):
+            statements = [(x, self.name) for x in self.statements]
+            logging.getLogger(__name__).info("Found " + str(len(statements)) + " total statements in " + self.name)
+
+            if self.resolve:
+                axioms +=self.get_imported_axioms()
+                logging.getLogger(__name__).info("Working from a total of " + str(len(axioms)) + " axioms (including imported ones)")
+
+            return statements
+            
+                
 
         axioms = [(x, self.name) for x in self.axioms[:]]
         logging.getLogger(__name__).info("Found " + str(len(axioms)) + " axioms in " + self.name)
@@ -710,30 +786,32 @@ class Ontology(object):
                        self.name.replace(os.path.normpath(self.basepath[1]), self.basepath[0]).replace('.clif', '.owl').replace(os.sep, '/'),
                                       profile)
 
-            axioms = self.get_all_axioms()
+            statements = self.get_all_axioms()
 
             # keeping track of classes (unary predicates) and properties (binary predicates) encountered
             # to avoid redundant declarations
             # predicates with the same arity and name are assumed to be identical
 
             # Loop over each Axiom and filter applicable patterns
-            for axiom, path in axioms:
+            for statement, path in statements:
 
-                print('Axiom: {} from {}'.format(axiom, path))
-                pcnf = axiom.ff_pcnf()
+                print('Axiom: {} from {}'.format(statement, path))
+                pcnf = statement.ff_pcnf()
                 print('FF-PCNF: {}'.format(pcnf))
 
-                # for completeness: declare all unary predicates as classes
-                for unary in axiom.unary():
-                    if unary.name not in self.classes:
-                        self.classes.add(unary.name)
-                        onto.declare_class(unary.name)
+                import macleod.logical.axiom as ax
+                if(isinstance(statement, ax.Axiom)):
+                    # for completeness: declare all unary predicates as classes
+                    for unary in statement.unary():
+                        if unary.name not in self.classes:
+                            self.classes.add(unary.name)
+                            onto.declare_class(unary.name)
 
-                # for completeness: declare all binary predicates as object properties
-                for binary in axiom.binary():
-                    if binary.name not in self.properties:
-                        self.properties.add(binary.name)
-                        onto.declare_property(binary.name)
+                    # for completeness: declare all binary predicates as object properties
+                    for binary in statement.binary():
+                        if binary.name not in self.properties:
+                            self.properties.add(binary.name)
+                            onto.declare_property(binary.name)
 
                 pcnf_sentences = macleod.dl.translation.translate_owl(pcnf)
 
@@ -742,23 +820,24 @@ class Ontology(object):
 
                 for pruned in pcnf_sentences:
 
-                    self.pcnf_sentences += 1
+                    if isinstance(pruned, ax.Axiom):
+                        self.pcnf_sentences += 1
 
-                    tmp_axiom = macleod.logical.axiom.Axiom(pruned)
-                    pattern_set = macleod.dl.filters.filter_axiom(tmp_axiom)
+                        tmp_axiom = macleod.logical.axiom.Axiom(pruned)
+                        pattern_set = macleod.dl.filters.filter_axiom(tmp_axiom)
 
-                    self.filtered_patterns += len(pattern_set)
+                        self.filtered_patterns += len(pattern_set)
 
-                    #Collector for extracted patterns
-                    for pattern in pattern_set:
+                        #Collector for extracted patterns
+                        for pattern in pattern_set:
 
-                        extraction = pattern(tmp_axiom)
-                        if extraction is not None:
-                            print('     - pattern', extraction[0])
-                            if pattern==Pattern.transitive_relation:
-                                self.transitive_extractions.append(extraction)
-                            else:
-                                extractions.append(extraction)
+                            extraction = pattern(tmp_axiom)
+                            if extraction is not None:
+                                print('     - pattern', extraction[0])
+                                if pattern==Pattern.transitive_relation:
+                                    self.transitive_extractions.append(extraction)
+                                else:
+                                    extractions.append(extraction)
 
                 # TODO: now produce all the extracted axioms
                 for extraction in extractions:

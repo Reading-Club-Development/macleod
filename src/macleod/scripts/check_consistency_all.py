@@ -1,7 +1,7 @@
 import os
 import sys
 import macleod.scripts.licence 
-import macleod.scripts.check_consistency
+import macleod.scripts.check_consistencylib
 
 def main():
     """Entrypoint for check consistency all"""

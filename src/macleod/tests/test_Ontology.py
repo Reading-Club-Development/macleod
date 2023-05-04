@@ -19,7 +19,7 @@ class OnologyTest(unittest.TestCase):
 
         onto = Ontology("Derp")
         onto.axioms.append(subclass_relation)
-        print(onto.to_owl())
+        print(onto.to_owl(0))
 
 if __name__ == '__main__':
     unittest.main()
